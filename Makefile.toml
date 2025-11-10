@@ -1,0 +1,126 @@
+[tasks.new-atcoder]
+description = "Builds an environment for AtCoder contest"
+workspace = false
+script_runner = "@shell"
+script = '''
+CONTEST=${1:-nonspecific}
+PROBLEMS=${2:-a b c d e f g}
+CONTEST_DIR=crates/atcoder/${CONTEST}
+TEMPLATE=templates/atcoder.rs
+
+if [ -d ${CONTEST_DIR} ]; then
+    echo "Contest ${CONTEST} already exists"
+    exit 1
+fi
+
+mkdir -p ${CONTEST_DIR}/src/bin
+
+cat > ${CONTEST_DIR}/Cargo.toml << EOF
+[package]
+name = "${CONTEST}"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+
+[dependencies]
+memoise.workspace = true
+superslice.workspace = true
+itertools.workspace = true
+proconio.workspace = true
+math-optim = { git = "https://github.com/chiaoicchi/math-optim_rs.git" }
+EOF
+
+for p in ${PROBLEMS}; do
+    BIN_FILE=${CONTEST_DIR}/src/bin/${p}.rs
+    if [ -f ${BIN_FILE} ]; then
+	echo "Skip: ${p}.rs already exists."
+    else
+	cp ${TEMPLATE} ${BIN_FILE}
+	echo "Created ${p}.rs"
+
+	cat >> ${CONTEST_DIR}/Cargo.toml << EOF
+
+[[bin]]
+name = "${p}"
+path = "src/bin/${p}.rs"
+EOF
+    fi
+done
+
+echo ""
+echo "Contest ${CONTEST} created."
+'''
+
+[tasks.abc]
+description = "Builds an environment for AtCoder Beginner Contest"
+workspace = false
+script_runner = "@shell"
+script = '''
+CONTEST=${1:-nonspecific}
+sh -c "cargo make new-atcoder ${CONTEST} 'a b c d e f g'"
+'''
+
+[tasks.run]
+description = "Runs Contest binary file"
+workspace = false
+script_runner = "@shell"
+script = '''
+CONTEST=${1}
+PROBLEM=${2}
+cargo run -p ${CONTEST} --bin ${PROBLEM}
+'''
+
+[tasks.r]
+alias = "run"
+
+[tasks.submit]
+description = "Prepares submission file"
+workspace = false
+script_runner = "@shell"
+script = '''
+CONTEST=${1}
+PROBLEM=${2}
+CRATE_DIR=crates/atcoder/${CONTEST}
+OUTPUT=submit/${CONTEST}_${PROBLEM}.rs
+
+cd ${CRATE_DIR}
+cargo equip \
+    --bin ${PROBLEM} \
+    --minify libs \
+    --remove docs \
+    --exclude memoise \
+    --exclude superslice \
+    --exclude itertools \
+    --exclude proconio \
+    --no-check \
+    > ../../../${OUTPUT}
+cd ../../..
+echo "Generated ${OUTPUT}."
+
+cat ${OUTPUT} | pbcopy
+echo "Copied to clipboard."
+'''
+
+[tasks.s]
+alias = "submit"
+
+[tasks.edit]
+description = "Opens a problem file in editor"
+workspace = false
+script_runner = "@shell"
+script = '''
+CONTEST=${1}
+PROBLEM=${2}
+EDITOR=${EDITOR:-nvim}
+FILE=crates/atcoder/${CONTEST}/src/bin/${PROBLEM}.rs
+
+if [ ! -f ${FILE} ]; then
+    echo "Error: ${FILE} not found."
+    exit 1
+fi
+
+${EDITOR} ${FILE}
+'''
+
+[tasks.e]
+alias = "edit"

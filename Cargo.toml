@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/atcoder/*",
+]
+
+[workspace.dependencies]
+# AtCoder
+memoise = "=0.3.2"
+superslice = "=1.0.0"
+itertools = "=0.14.0"
+proconio = { version = "=0.5.0", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
