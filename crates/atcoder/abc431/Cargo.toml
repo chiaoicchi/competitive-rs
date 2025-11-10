@@ -1,0 +1,40 @@
+[package]
+name = "abc431"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+
+[dependencies]
+memoise.workspace = true
+superslice.workspace = true
+itertools.workspace = true
+proconio.workspace = true
+math-optim = { git = "https://github.com/chiaoicchi/math-optim_rs.git" }
+
+[[bin]]
+name = "a"
+path = "src/bin/a.rs"
+
+[[bin]]
+name = "b"
+path = "src/bin/b.rs"
+
+[[bin]]
+name = "c"
+path = "src/bin/c.rs"
+
+[[bin]]
+name = "d"
+path = "src/bin/d.rs"
+
+[[bin]]
+name = "e"
+path = "src/bin/e.rs"
+
+[[bin]]
+name = "f"
+path = "src/bin/f.rs"
+
+[[bin]]
+name = "g"
+path = "src/bin/g.rs"
